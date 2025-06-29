@@ -10,7 +10,7 @@ git clone https://github.com/jaeeewon/espnet.git
 cd espnet
 pip install -e .
 ```
-`pip install jiwer flash_attn torchaudio espnet_model_zoo soundfile`
+`pip install jiwer torchaudio espnet_model_zoo soundfile`
 
 # entry point
 `<python> infer.pyp`

@@ -4,7 +4,7 @@ import librosa
 import gradio
 
 tag = "Shinji Watanabe/librispeech_asr_train_asr_transformer_e18_raw_bpe_sp_valid.acc.best"
-device = "cuda"
+device = "cpu"
 
 s2t = Speech2Text.from_pretrained(tag, device=device)
 

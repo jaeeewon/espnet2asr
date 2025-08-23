@@ -36,7 +36,7 @@ class PseudoStreamASR:
         self.helper = StreamHelper(
             s_context=context,
             t_poll=every,
-            model=Speech2Text.from_pretrained(tag, device=device),
+            model=Speech2Text.from_pretrained(tag, device=device, nbest=1),
         )
         if autorun:
             self.__call__()
@@ -85,4 +85,4 @@ class PseudoStreamASR:
 
 
 if __name__ == "__main__":
-    PseudoStreamASR(context=6, every=1)
+    PseudoStreamASR(context=6, every=0.5)

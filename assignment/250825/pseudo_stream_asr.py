@@ -2,11 +2,10 @@
 import gradio as gr
 import numpy as np
 import librosa
-import asyncio
-import time
+from stream_helper import StreamHelper
 from espnet2.bin.asr_inference import Speech2Text
 
-'''
+"""
 # TODO
 1. 가장 최근 출력과 context개 출력의 CER/WER 비교하여 일정 이상이면 이를 정답으로 잠정 결론
 2. 그 이전의 음성은 모델에 입력하지 않고, 이후부터 입력함
@@ -18,24 +17,27 @@ from espnet2.bin.asr_inference import Speech2Text
 2.07s | HELLO HOWITZER I WAS WAITING FOR YOU
 2.38s | HELLO HOW WAS YOUR DAY I WAS WAITING FOR YOU
 출력이 더 많이 있으면 언어 모델이 더 잘 표현해주기 때문에, 일정 이상 보정되면 이를 정답으로 보자
-'''
+"""
+
 
 class PseudoStreamASR:
     def __init__(
         self,
         tag="Shinji Watanabe/librispeech_asr_train_asr_transformer_e18_raw_bpe_sp_valid.acc.best",
         device="cpu",
-        context=3,
+        context=6,
         every=0.5,
         sr=16_000,
         threshold=0.7,
         autorun=True,
     ):
-        self.model = Speech2Text.from_pretrained(tag, device=device)
-        self.context = context
         self.every = every
         self.sr = sr
-        self.inference_task = None
+        self.helper = StreamHelper(
+            s_context=context,
+            t_poll=every,
+            model=Speech2Text.from_pretrained(tag, device=device),
+        )
         if autorun:
             self.__call__()
 
@@ -76,29 +78,11 @@ class PseudoStreamASR:
         else:
             new_audio = (self.sr, np.concatenate((audio_stream[1], y)))
 
-        if self.inference_task and self.inference_task.done():
-            text = self.inference_task.result()
-            if text != "":
-                if text_stream is None:
-                    text_stream = ""
-                else:
-                    text_stream += "\n"
-                text_stream += text
+        self.helper.append_stream(y)
+        text = self.helper.get_status()
 
-            self.inference_task = None
-
-        if self.inference_task is None:
-            self.inference_task = asyncio.create_task(
-                asyncio.to_thread(self.exec_inference, new_audio[1])
-            )
-
-        return new_audio, text_stream, new_audio, text_stream
-
-    def exec_inference(self, audio):
-        start_time = time.perf_counter()
-        text = self.model(audio)[0][0]
-        return "%.2fs | %s" % (time.perf_counter() - start_time, text)
+        return new_audio, text, new_audio, text
 
 
 if __name__ == "__main__":
-    PseudoStreamASR()
+    PseudoStreamASR(context=6, every=1)

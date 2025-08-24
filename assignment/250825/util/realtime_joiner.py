@@ -97,13 +97,13 @@ class RealtimeJoiner:
 
     def check_quiet(self):
         if self.quiet_counter >= self.quiet_threshold and self.buffer:
-            self.final.append(f"[{self.buffer}]")
+            self.final.append(self.buffer)
             self.buffer = ""
             self.quiet_counter = 0
             self.discrete_counter = 0
 
     def get_text(self):
-        total = self.final[:]
+        total = [f"[{a}]" for a in self.final[:]] # wrapped for completed
         if len(self.buffer):
-            total.append(self.buffer)
+            total.append(self.buffer) # unwrapped for the other
         return " ".join(total)

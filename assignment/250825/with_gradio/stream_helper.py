@@ -4,7 +4,7 @@ import asyncio
 import time
 from espnet2.bin.asr_inference import Speech2Text
 from dataclasses import dataclass
-from realtime_joiner import RealtimeJoiner
+from util.realtime_joiner import RealtimeJoiner
 # import yaml
 
 

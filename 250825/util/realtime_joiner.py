@@ -103,7 +103,13 @@ class RealtimeJoiner:
             self.discrete_counter = 0
 
     def get_text(self):
-        total = [f"[{a}]" for a in self.final[:]] # wrapped for completed
+        total = [f"[{a}]" for a in self.final[:]]  # wrapped for completed
         if len(self.buffer):
-            total.append(self.buffer) # unwrapped for the other
+            total.append(self.buffer)  # unwrapped for the other
+        return " ".join(total)
+
+    def get_text_anyway(self):
+        total = self.final[:]
+        if len(self.buffer):
+            total.append(self.buffer)
         return " ".join(total)
